@@ -42,6 +42,28 @@ module.exports.login = (event, context) => {
         }));
 };
 
+module.exports.me = (event, context) => {
+    context.callbackWaitsForEmptyEventLoop = false;
+    return connectToDatabase()
+        .then(() =>
+            me(event.requestContext.authorizer.principalId) 
+            // decoded.id from the VerifyToken.auth will be passed along 
+            // as the principalId under the authorizer
+        )
+        .then(session => ({
+            statusCode: 200,
+            body: JSON.stringify(session)
+        }))
+        .catch(err => ({
+            statusCode: 500,
+            headers: {'Content-Type': 'text/plain'},
+            body: {
+                stack: err.stack,
+                message: err.message
+            }
+        }));
+};
+
 // helpers
 function signToken(id) {
     return jwt.sign({ id: id }, process.env.JWT_SECRET, {expiresIn: 86400});
@@ -109,4 +131,14 @@ function login(eventBody) {
                 : comparePassword(eventBody.password, user.password, user._id)
         )
         .then(token => ({ auth: true, token: token }));
+}
+
+function me(userId) {
+    return User.findById(userId, { password: 0})
+        .then(user =>
+            !user
+                ? Promise.reject('No user found')
+                : user
+        )
+        .catch(err => Promise.reject(new Error(err)));
 }

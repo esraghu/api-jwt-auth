@@ -7,9 +7,9 @@ provider:
   name: google
   runtime: nodejs
   stage: dev
-  project: my-project
+  project: blockchain-realestate
   # the path to the credentials file needs to be absolute
-  credentials: ~/.gcloud/keyfile.json
+  credentials: c:\Users\esraghu\.gcloud\serverless-api-jwt-key.json
   environment:
     JWT_SECRET: ${self:custom.secrets.JWT_SECRET}
     DB: ${self:custom.secrets.DB}
@@ -26,46 +26,48 @@ package:
     - .git/**
 
 functions:
-  first:
-    handler: http
-    events:
-      - http: path
+#  first:
+#    handler: http
+#    events:
+#      - http: path
 
   verify-token:
-    handler: auth/VerifyToken.auth
+    handler: auth
+    events:
+      - http: path
     
   login:
-    handler: auth/AuthHandler.login
+    handler: login
     events:
-      -http:
-        path: login
-        method: post
-        cors: true
+      - http: path
+#        - path:
+#            method: post
+#            cors: true
     
   register:
-    handler: auth/AuthHandler.register
+    handler: register
     events:
-      -http:
-        path: register
-        method: post
-        cors: true
+      - http: path
+#        path: register
+#        method: post
+#        cors: true
     
   me:
-    handler: auth/AuthHandler.me
+    handler: me
     events:
-      -http:
-        path: me
-        method: get
-        cors: true
-        authorizer: verify-token
+      - http: path
+#        path: me
+#        method: get
+#        cors: true
+#        authorizer: verify-token
     
   getUsers:
-    handler: auth/AuthHandler.getUsers
+    handler: getUsers
     events:
-      -http:
-        path: getUsers
-        method: get
-        cors: true
+      - http: path
+#        path: getUsers
+#        method: get
+#        cors: true
   # NOTE: the following uses an "event" event (pubSub event in this case).
   # Please create the corresponding resources in the Google Cloud
   # before deploying this service through Serverless
